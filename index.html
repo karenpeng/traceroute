@@ -1,0 +1,60 @@
+<style>
+ html, body, #mapCanvas { height: 100%; margin: 0; padding: 0;}
+ #input{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 400px;
+ }
+</style>
+<canvas id="mapCanvas"></canvas>
+<div id="input">
+  Site: <input type ="text" id="site">
+  <button type="button" id="submit" onclick="requestTrace()">Submit</button>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!--<script type="text/javascript" src="/../public/js/myScript.js"></script>-->
+<script type="text/javascript">
+  function requestTrace() {
+    var inputValue = document.getElementById("site").value;
+    console.log(inputValue);
+    $.ajax({
+      type: 'POST',
+      url: '/trace',
+      data: {
+        siteName: inputValue
+      },
+      dataType: 'jsonp',
+      success: function (d) {
+        console.log("response from server: " + d);
+      }
+    });
+   }
+
+  var IPs = [];
+  function lookUpIP(ip){
+    $.ajax({
+      type: "GET",
+      url: 'http://ipinfo.io/'+ip,
+      dataType: "jsonp",
+            success: function (res) {
+        var str = res.loc;
+        var res = str.split(",");
+        var lat = parseFloat(res[0]);
+        var lng = parseFloat(res[1]);
+        //getMap(lat,lng);
+        //console.log(lat,lng);
+        IPs.push([lat,lng]);
+      }
+    });
+  }
+
+  function getMap(_lat, _lng){
+      var mapOptions = {
+        //center: { lat: _lat, lng: _lng},
+        center: { lat: -34.397, lng: 150.644},
+        zoom: 8
+      };
+      var map = new google.maps.Map(document.getElementById('mapCanvas'), mapOptions);
+    }
+</script>
