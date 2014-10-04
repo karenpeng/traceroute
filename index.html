@@ -1,1 +1,58 @@
-<script type="text/javascript" src="bundle.js" ></script>
+<style>
+ html, body, #mapCanvas { height: 100%; margin: 0; padding: 0;}
+ #clickMe{
+  position: absolute;
+  left: 40px;
+  top: 50px;
+ }
+  #clickMe2{
+  position: absolute;
+  left: 120px;
+  top: 50px;
+ }
+</style>
+<canvas id="mapCanvas"></canvas>
+<button id="clickMe" onclick="lookUpIP()">lookup IP!</button>
+<button id="clickMe2" onclick="traceRoute()">Trace Route!</button>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!--<script type="text/javascript" src="bundle.js" ></script>-->
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAypLx03weIhGxgHh2EQajVfoMhrH7vOZw"></script>
+<script type="text/javascript">
+  function traceRoute(){
+     $.ajax({
+      type: "GET",
+      url: 'https://api.pingdom.com/api/2.0/traceroute?host=pingdom.com&probeid=23',
+      success: function (res) {
+        console.log("yay "+ res)
+      },
+      error: function(jqXHR, textStatus, errorThrown){
+        console.log(errorThrown)
+      },
+      dataType: "jsonp"
+    });
+  }
+  function getMap(_lat, _lng){
+    var mapOptions = {
+      //center: { lat: _lat, lng: _lng},
+      center: { lat: -34.397, lng: 150.644},
+      zoom: 8
+    };
+    var map = new google.maps.Map(document.getElementById('mapCanvas'), mapOptions);
+    }
+  function lookUpIP(){
+    $.ajax({
+      type: "GET",
+      url: 'http://ipinfo.io/121.222.1.1',
+      success: function (res) {
+        var str = res.loc;
+        var res = str.split(",");
+        var lat = parseFloat(res[0]);
+        var lng = parseFloat(res[1]);
+        //getMap(lat,lng);
+        //console.log(lat,lng);
+        getMap(-34.397, 150.644);
+      },
+      dataType: "jsonp"
+    });
+  }
+</script>
