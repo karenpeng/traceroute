@@ -105,7 +105,7 @@ exports.trace = function (host,cb) {
 var traceroute = require('traceroute');
 
 traceroute.trace('google.com', function (err, hops) {
-		if (!err) console.log(hops);
+  if (!err) console.log(hops);
 });
 },{"traceroute":"/Users/karen/Documents/my_project/routeTrace2/node_modules/traceroute/index.js"}],"/usr/local/lib/node_modules/watchify/node_modules/browserify/lib/_empty.js":[function(require,module,exports){
 
