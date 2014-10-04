@@ -31,20 +31,20 @@
     });
    }
 
-  var IPs = [];
+  var Locs = [];
   function lookUpIP(ip){
     $.ajax({
       type: "GET",
       url: 'http://ipinfo.io/'+ip,
       dataType: "jsonp",
-            success: function (res) {
+      success: function (res) {
         var str = res.loc;
         var res = str.split(",");
         var lat = parseFloat(res[0]);
         var lng = parseFloat(res[1]);
         //getMap(lat,lng);
         //console.log(lat,lng);
-        IPs.push([lat,lng]);
+        Locs.push([lat,lng]);
       }
     });
   }
