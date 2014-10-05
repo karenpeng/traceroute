@@ -1,94 +1,106 @@
-<style>
- html, body, #mapCanvas { height: 100%; margin: 0; padding: 0;}
- #input{
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 400px;
- }
-</style>
-<canvas id="mapCanvas"></canvas>
-<div id="input">
-  Site: <input type ="text" id="site">
-  <button type="button" id="submit" onclick="requestTrace()">Submit</button>
-</div>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<!--<script type="text/javascript" src="/../public/js/myScript.js"></script>-->
-<script type="text/javascript">
-  function requestTrace() {
-    var inputValue = document.getElementById("site").value;
-    //console.log(inputValue);
-    $.ajax({
-      type: 'POST',
-      url: '/trace',
-      data: {
-        siteName: inputValue
-      },
-      success: function (data) {
-        //console.log("response from server: "+ data.IPs);
-        getIP(data.IPs);
-      },
-      dataType: 'jsonp'
-    });
-   }
-
-  function getIP(arr){
-    IPs = [];
-    var pattern = /\(\S+\)/g;
-    arr.forEach(function(string){
-      //console.log(string);
-      var ipWithParenthesis = pattern.exec(string);
-      //console.log(ip, typeof ip);
-      if(ipWithParenthesis !== null){
-        //console.log(ipWithParenthesis[0]);
-        var pattern2 = /[^\(\)]+/g;
-        var ip = pattern2.exec(ipWithParenthesis);
-        //console.log(ip);
-        IPs.push(ip[0]);
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+     html, body, #mapCanvas { height: 100%; margin: 0; padding: 0;}
+     #input{
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 400px;
+     }
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAypLx03weIhGxgHh2EQajVfoMhrH7vOZw"></script>
+    <script type="text/javascript">
+      function initialize() {
+        var mapOptions = {
+          center: { lat: -34.397, lng: 150.644},
+          zoom: 8
+        };
+        var map = new google.maps.Map(document.getElementById('mapCanvas'),
+            mapOptions);
       }
-    });
-    //console.log(IPs);
-    lookUpIP(IPs);
-    console.log("IP "+IPs);
-  }
+      google.maps.event.addDomListener(window, 'load', initialize);
+      </script>
+  </head>
+  <body>
+    <canvas id="mapCanvas"></canvas>
+    <div id="input">
+      Site: <input type ="text" id="site">
+      <button type="button" id="submit" onclick="requestTrace()">Submit</button>
+    </div>
+  </body>
 
-  var locs = [];
-  function lookUpIP(ips){
-    lookUp(0);
-    function lookUp(i){
-    $.ajax({
-      type: "GET",
-      url: 'http://ipinfo.io/'+ips[i],
-      //url: "http://api.db-ip.com/addrinfo?addr="+ips[i]+"&api_key=9f88e0b10544ec079a00a704f040644c3dac2812",
-      // dataType: "jsonp",
-      dataType: "jsonp",
-      success: function (res) {
-        //console.log(res.latitude, res.longitude);
-        //console.log(res);
-        var str = res.loc;
-        var res = str.split(",");
-        var lat = parseFloat(res[0]);
-        var lng = parseFloat(res[1]);
-        locs.push([lat,lng]);
-        if(locs.length === IPs.length){
-          console.log("LOC "+locs);
-          return;
-        }else{
-          i++;
-          lookUp(i);
+
+  <!--<script type="text/javascript" src="/../public/js/myScript.js"></script>-->
+  <script type="text/javascript">
+    function requestTrace() {
+      var inputValue = document.getElementById("site").value;
+      //console.log(inputValue);
+      $.ajax({
+        type: 'POST',
+        url: '/trace',
+        data: {
+          siteName: inputValue
+        },
+        success: function (data) {
+          //console.log("response from server: "+ data.IPs);
+          getIP(data.IPs);
+        },
+        dataType: 'jsonp'
+      });
+     }
+
+    function getIP(arr){
+      IPs = [];
+      var pattern = /\(\S+\)/g;
+      arr.forEach(function(string){
+        //console.log(string);
+        var ipWithParenthesis = pattern.exec(string);
+        //console.log(ip, typeof ip);
+        if(ipWithParenthesis !== null){
+          //console.log(ipWithParenthesis[0]);
+          var pattern2 = /[^\(\)]+/g;
+          var ip = pattern2.exec(ipWithParenthesis);
+          //console.log(ip);
+          IPs.push(ip[0]);
         }
-      }
-    });
-  }
-
-  }
-
-  function getMap(_lat, _lng){
-      var mapOptions = {
-        //center: { lat: _lat, lng: _lng},
-        center: { lat: -34.397, lng: 150.644},
-        zoom: 8
-      };
-      var map = new google.maps.Map(document.getElementById('mapCanvas'), mapOptions);
+      });
+      //console.log(IPs);
+      lookUpIP(IPs);
+      console.log("IP "+IPs);
     }
-</script>
+
+    var locs = [];
+    function lookUpIP(ips){
+      lookUp(0);
+      function lookUp(i){
+      $.ajax({
+        type: "GET",
+        url: 'http://ipinfo.io/'+ips[i],
+        //url: "http://api.db-ip.com/addrinfo?addr="+ips[i]+"&api_key=9f88e0b10544ec079a00a704f040644c3dac2812",
+        // dataType: "jsonp",
+        dataType: "jsonp",
+        success: function (res) {
+          //console.log(res.latitude, res.longitude);
+          //console.log(res);
+          var str = res.loc;
+          var res = str.split(",");
+          var lat = parseFloat(res[0]);
+          var lng = parseFloat(res[1]);
+          locs.push([lat,lng]);
+          if(locs.length === IPs.length){
+            console.log("LOC "+locs);
+            return;
+          }else{
+            i++;
+            lookUp(i);
+          }
+        }
+      });
+    }
+
+    }
+  </script>
+</html>
