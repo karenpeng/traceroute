@@ -47,6 +47,7 @@ app.post('/trace', jsonParser, function (req, res) {
 function trace(req, res) {
   // get the name of the site to trace:
   //var pathname = pathname;
+  var rawIPs = [];
   var pathname = req.body.siteName;
   // remove the leading /:
   while (pathname.charAt(0) === '/') {
@@ -64,6 +65,10 @@ function trace(req, res) {
     // on completion, close the connection to the client:
     //res.end("\n\nTrace complete");
     console.log("\n\nTrace complete");
+    console.log(rawIPs);
+    res.jsonp({
+      IPs: rawIPs
+    });
   });
 
   // when new data comes in from the trace,pass it to the client:
@@ -73,7 +78,10 @@ function trace(req, res) {
     // res.jsonp({
     //   add: data
     // });
-    res.write(data);
-    console.log(data);
+    //res.write(data);
+    rawIPs.push(data);
+    //console.log(data);
+    //console.lo
   });
+
 }

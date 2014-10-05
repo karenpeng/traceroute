@@ -17,36 +17,70 @@
 <script type="text/javascript">
   function requestTrace() {
     var inputValue = document.getElementById("site").value;
-    console.log(inputValue);
+    //console.log(inputValue);
     $.ajax({
       type: 'POST',
       url: '/trace',
       data: {
         siteName: inputValue
       },
-      dataType: 'jsonp',
-      success: function (d) {
-        console.log("response from server: " + d);
-      }
+      success: function (data) {
+        //console.log("response from server: "+ data.IPs);
+        getIP(data.IPs);
+      },
+      dataType: 'jsonp'
     });
    }
 
-  var Locs = [];
-  function lookUpIP(ip){
+  function getIP(arr){
+    IPs = [];
+    var pattern = /\(\S+\)/g;
+    arr.forEach(function(string){
+      //console.log(string);
+      var ipWithParenthesis = pattern.exec(string);
+      //console.log(ip, typeof ip);
+      if(ipWithParenthesis !== null){
+        //console.log(ipWithParenthesis[0]);
+        var pattern2 = /[^\(\)]+/g;
+        var ip = pattern2.exec(ipWithParenthesis);
+        //console.log(ip);
+        IPs.push(ip[0]);
+      }
+    });
+    //console.log(IPs);
+    lookUpIP(IPs);
+    console.log("IP "+IPs);
+  }
+
+  var locs = [];
+  function lookUpIP(ips){
+    lookUp(0);
+    function lookUp(i){
     $.ajax({
       type: "GET",
-      url: 'http://ipinfo.io/'+ip,
+      url: 'http://ipinfo.io/'+ips[i],
+      //url: "http://api.db-ip.com/addrinfo?addr="+ips[i]+"&api_key=9f88e0b10544ec079a00a704f040644c3dac2812",
+      // dataType: "jsonp",
       dataType: "jsonp",
       success: function (res) {
+        //console.log(res.latitude, res.longitude);
+        //console.log(res);
         var str = res.loc;
         var res = str.split(",");
         var lat = parseFloat(res[0]);
         var lng = parseFloat(res[1]);
-        //getMap(lat,lng);
-        //console.log(lat,lng);
-        Locs.push([lat,lng]);
+        locs.push([lat,lng]);
+        if(locs.length === IPs.length){
+          console.log("LOC "+locs);
+          return;
+        }else{
+          i++;
+          lookUp(i);
+        }
       }
     });
+  }
+
   }
 
   function getMap(_lat, _lng){
