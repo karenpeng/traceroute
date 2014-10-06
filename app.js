@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var exec = require("child_process").exec; // include exec module
 
 var later = require("later");
+var fs = require("fs");
 
 // Set up the view directory
 app.set("views", __dirname);
@@ -34,6 +35,12 @@ app.get('/', function (req, res) {
   //res.render('index');
   res.json({
     info: routes
+  });
+
+  routes.forEach(function (route) {
+    route.forEach(function () {
+
+    });
   });
 });
 
@@ -72,6 +79,7 @@ function trace(_date, _index, _url) {
 
     console.log(info);
     routes.push(info);
+    writeFile(info);
   });
 
   // when new data comes in from the trace,pass it to the client:
@@ -80,11 +88,11 @@ function trace(_date, _index, _url) {
     var starPattern = /\*+/g;
     if (starPattern.exec(data) !== null) {
       starCount++;
-      console.log(starCount);
+      //console.log(starCount);
       if (starCount > 2) {
-        console.log("i gonna quit!");
+        //console.log("i gonna quit!");
         //cmd.kill("i gonna quit?!");
-        return;
+        //return;
       }
     }
     var ip = getIP(data);
@@ -111,13 +119,24 @@ function getIP(string) {
 }
 
 function traceAll(_date) {
-  urls.forEach(function (url, index) {
-    trace(_date, index, url);
+  urls.forEach(function (_url, _index) {
+    trace(_date, _index, _url);
   });
 }
 
-//traceAll(new Date());
-trace(new Date(), 0, "www.nyu.edu");
+var file;
+
+function writeFile(json) {
+  if (file === null) {
+    file = fs.openSync('data.txt', "ax", "0444");
+  }
+  var string = JSON.stringify(json);
+  var buffer = new Buffer(string, "utf8");
+  fs.writeSync(file, buffer, 0, buffer.length);
+}
+
+traceAll(new Date());
+//trace(new Date(), 0, "www.cmu.edu");
 var sched = later.parse.recur().first().second();
 //var sched = later.parse.recur().first().minute();
 // var t = later.setInterval(function () {
