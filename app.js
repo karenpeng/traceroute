@@ -8,6 +8,14 @@ var ejs = require('ejs');
 var bodyParser = require('body-parser');
 var exec = require("child_process").exec; // include exec module
 
+var later = require("later");
+
+var urls = [
+  "www.ucla.edu",
+  "www.cmu.edu",
+  "www.nyu.edu/",
+  "http://web.mit.edu/"
+];
 // Set up the view directory
 app.set("views", __dirname);
 
@@ -53,7 +61,7 @@ function trace(req, res) {
   var cmd = exec("traceroute " + pathname, function (error, stdout, stderr) {
     // on completion, close the connection to the client:
     console.log("\n\nTrace complete");
-    console.log(rawIPs);
+    //console.log(rawIPs);
     res.jsonp({
       IPs: rawIPs
     });
@@ -62,6 +70,14 @@ function trace(req, res) {
   // when new data comes in from the trace,pass it to the client:
   cmd.stdout.on('data', function (data) {
     rawIPs.push(data);
+    console.log(data);
   });
-
 }
+
+function test() {
+  console.log(new Date());
+}
+var sched = later.parse.recur().first().second();
+//var sched = later.parse.recur().first().minute();
+//.startingOn('00:00');
+var t = later.setInterval(test, sched);
