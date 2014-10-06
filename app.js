@@ -37,11 +37,11 @@ app.get('/', function (req, res) {
     info: routes
   });
 
-  routes.forEach(function (route) {
-    route.forEach(function () {
+  // routes.forEach(function (route) {
+  //   route.forEach(function () {
 
-    });
-  });
+  //   });
+  // });
 });
 
 var urls = [
@@ -73,6 +73,7 @@ function trace(_date, _index, _url, callback) {
       var ip = getIP(o);
       if (ip !== undefined) {
         _route.push(ip);
+        getLocation(ip);
       }
     });
 
@@ -102,6 +103,60 @@ function traceAll(_date, callback) {
   urls.forEach(function (_url, _index, callback) {
     trace(_date, _index, _url, callback);
   });
+}
+
+function getLocation(ip) {
+  urllib.request('http://ipinfo.io/' + ip, {
+    method: 'GET',
+    dataType: 'jsonp'
+  }, function (err, data, res) {
+    if (err) {
+      return console.error(err.stack);
+    }
+    console.log(res);
+    //console.log(res.loc);
+    //console.log(data);
+    //var str = res.loc;
+    // var result = str.split(",");
+    // var lat = parseFloat(result[0]);
+    // var lng = parseFloat(result[1]);
+    // console.log(lat, lng);
+    //locs.push([lat,lng]);
+    //callback(err)
+  });
+}
+
+function getLocationAll(ips, callback) {
+  var ip = ips.unshift();
+  var res = [];
+  _get();
+
+  // get location one by one
+  function _get(ip) {
+    // if no left ip
+    // callback with the res
+    if (!ip) {
+      return callback(null, res);
+    }
+
+    // get location with ip
+    getLocation(ip, function (err, location) {
+      if (err) {
+        console.error(err.stack);
+      }
+
+      if (location) {
+        res.push({
+          ip: ip,
+          location: location
+        });
+      }
+
+      // try to get next one
+      _get(ips.unshift());
+    });
+  }
+
 }
 
 var file;
