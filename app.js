@@ -6,10 +6,10 @@ var server = app.listen(5000, function () {
 
 var ejs = require('ejs');
 var bodyParser = require('body-parser');
-var exec = require("child_process").exec; // include exec module
-
-var later = require("later");
+var cp = require('child_process'); // include exec module
+var later = require('later');
 var fs = require("fs");
+var urllib = require('urllib');
 
 // Set up the view directory
 app.set("views", __dirname);
@@ -55,89 +55,83 @@ var urlsCounter = 0;
 var routes = [];
 
 // perform a traceroute:
-function trace(_date, _index, _url) {
-  // get the name of the site to trace:
+function trace(_date, _index, _url, callback) {
+
   var _route = [];
   var info;
   var pathname = _url;
   var starCount = 0;
-  // remove the leading /:
-  while (pathname.charAt(0) === '/') {
-    pathname = pathname.substr(1);
-  }
-  //console.log("requested: " + pathname);
-  //console.log("Starting trace to " + pathname + "\n\n");
-  // start the trace for real:
-  var cmd = exec("traceroute " + pathname, function (error, stdout, stderr) {
-    // on completion, close the connection to the client:
-    //console.log("\n\nTrace complete");
+
+  cp.exec("traceroute " + pathname, {
+    setTimeout: 5 * 60 * 1000
+  }, function (err, stdout, stderr) {
+    if (err) {
+      return callback(err);
+    }
+    var out = stdout.split('\n');
+    out.forEach(function (o) {
+      var ip = getIP(o);
+      if (ip !== undefined) {
+        _route.push(ip);
+      }
+    });
+
     info = {
-      date: _date,
       index: _index,
+      date: _date,
       route: _route
     };
-
-    console.log(info);
     routes.push(info);
-    writeFile(info);
+    //writeFile(info);
+    callback(null, info);
   });
 
-  // when new data comes in from the trace,pass it to the client:
-  cmd.stdout.on('data', function (data) {
-    //console.log(data);
-    var starPattern = /\*+/g;
-    if (starPattern.exec(data) !== null) {
-      starCount++;
-      //console.log(starCount);
-      if (starCount > 2) {
-        //console.log("i gonna quit!");
-        //cmd.kill("i gonna quit?!");
-        //return;
-      }
-    }
-    var ip = getIP(data);
-    if (ip !== undefined) {
-      _route.push(ip);
-      //console.log(ip);
-    }
-  });
 }
 
-function getIP(string) {
-  //get (137.164.26.200)
+function getIP(str) {
   var pattern = /\(\S+\)/g;
-  var ipWithParenthesis = pattern.exec(string);
-  //console.log(ipWithParenthesis);
+  var ipWithParenthesis = pattern.exec(str);
   if (ipWithParenthesis !== null) {
-    //console.log(ipWithParenthesis[0]);
-    //get 137.164.26.200
     var pattern2 = /[^\(\)]+/g;
     var ip = pattern2.exec(ipWithParenthesis);
-    //console.log(ip);
     return ip[0];
   }
 }
 
-function traceAll(_date) {
-  urls.forEach(function (_url, _index) {
-    trace(_date, _index, _url);
+function traceAll(_date, callback) {
+  urls.forEach(function (_url, _index, callback) {
+    trace(_date, _index, _url, callback);
   });
 }
 
 var file;
 
 function writeFile(json) {
-  if (file === null) {
-    file = fs.openSync('data.txt', "ax", "0444");
-  }
+  // if (file === null) {
+  //   file = fs.openSync('data.txt', "ax", "0444");
+  // }
   var string = JSON.stringify(json);
   var buffer = new Buffer(string, "utf8");
-  fs.writeSync(file, buffer, 0, buffer.length);
+  fs.writeSync("data.txt", buffer, 0, buffer.length);
 }
 
-traceAll(new Date());
-//trace(new Date(), 0, "www.cmu.edu");
-var sched = later.parse.recur().first().second();
+//traceAll(new Date(),function (err, info) {
+//   if (err) {
+//     return console.error(err.stack);
+//   }
+//   console.log(info);
+// });
+
+trace(new Date(), 0, "www.cmu.edu", function (err, info) {
+  if (err) {
+    return console.error(err.stack);
+  }
+  console.log(info);
+});
+
+/*
+schedule it for requesting every hour
+*/
 //var sched = later.parse.recur().first().minute();
 // var t = later.setInterval(function () {
 //   traceAll(new Date());
