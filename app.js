@@ -10,12 +10,6 @@ var exec = require("child_process").exec; // include exec module
 
 var later = require("later");
 
-var urls = [
-  "www.ucla.edu",
-  "www.cmu.edu",
-  "www.nyu.edu/",
-  "http://web.mit.edu/"
-];
 // Set up the view directory
 app.set("views", __dirname);
 
@@ -37,47 +31,95 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 app.get('/', function (req, res) {
-  res.render('index');
+  //res.render('index');
+  res.json({
+    info: routes
+  });
 });
 
-// POST / api / users gets JSON bodies
-app.post('/trace', jsonParser, function (req, res) {
-  if (!req.body) return res.sendStatus(400);
-  trace(req, res);
-});
+var urls = [
+  "www.cmu.edu",
+  "www.ucla.edu",
+  "www.nyu.edu",
+  "www.harvard.edu"
+];
+var urlsCounter = 0;
+
+var routes = [];
 
 // perform a traceroute:
-function trace(req, res) {
+function trace(_date, _index, _url) {
   // get the name of the site to trace:
-  var rawIPs = [];
-  var pathname = req.body.siteName;
+  var _route = [];
+  var info;
+  var pathname = _url;
+  var starCount = 0;
   // remove the leading /:
   while (pathname.charAt(0) === '/') {
     pathname = pathname.substr(1);
   }
-  console.log("requested: " + pathname);
-  console.log("Starting trace to " + pathname + "\n\n");
+  //console.log("requested: " + pathname);
+  //console.log("Starting trace to " + pathname + "\n\n");
   // start the trace for real:
   var cmd = exec("traceroute " + pathname, function (error, stdout, stderr) {
     // on completion, close the connection to the client:
-    console.log("\n\nTrace complete");
-    //console.log(rawIPs);
-    res.jsonp({
-      IPs: rawIPs
-    });
+    //console.log("\n\nTrace complete");
+    info = {
+      date: _date,
+      index: _index,
+      route: _route
+    };
+
+    console.log(info);
+    routes.push(info);
   });
 
   // when new data comes in from the trace,pass it to the client:
   cmd.stdout.on('data', function (data) {
-    rawIPs.push(data);
-    console.log(data);
+    //console.log(data);
+    var starPattern = /\*+/g;
+    if (starPattern.exec(data) !== null) {
+      starCount++;
+      console.log(starCount);
+      if (starCount > 2) {
+        console.log("i gonna quit!");
+        //cmd.kill("i gonna quit?!");
+        return;
+      }
+    }
+    var ip = getIP(data);
+    if (ip !== undefined) {
+      _route.push(ip);
+      //console.log(ip);
+    }
   });
 }
 
-function test() {
-  console.log(new Date());
+function getIP(string) {
+  //get (137.164.26.200)
+  var pattern = /\(\S+\)/g;
+  var ipWithParenthesis = pattern.exec(string);
+  //console.log(ipWithParenthesis);
+  if (ipWithParenthesis !== null) {
+    //console.log(ipWithParenthesis[0]);
+    //get 137.164.26.200
+    var pattern2 = /[^\(\)]+/g;
+    var ip = pattern2.exec(ipWithParenthesis);
+    //console.log(ip);
+    return ip[0];
+  }
 }
+
+function traceAll(_date) {
+  urls.forEach(function (url, index) {
+    trace(_date, index, url);
+  });
+}
+
+//traceAll(new Date());
+trace(new Date(), 0, "www.nyu.edu");
 var sched = later.parse.recur().first().second();
 //var sched = later.parse.recur().first().minute();
-//.startingOn('00:00');
-var t = later.setInterval(test, sched);
+// var t = later.setInterval(function () {
+//   traceAll(new Date());
+// }, sched);
