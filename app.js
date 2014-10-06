@@ -32,16 +32,9 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 app.get('/', function (req, res) {
-  //res.render('index');
   res.json({
     "universities": universities
   });
-
-  // routes.forEach(function (route) {
-  //   route.forEach(function () {
-
-  //   });
-  // });
 });
 
 var urls = [
@@ -49,15 +42,12 @@ var urls = [
   "www.mit.edu",
   "www.google.com"
 ];
-var urlsCounter = 0;
 
 var universities = [];
 
-// perform a traceroute:
-function trace(_date, _index, _url, callback) {
+function trace(_date, _time, _index, _url, callback) {
   var pathname = _url;
   var _route = [];
-  //var _locs = [];
   var info;
   cp.exec("traceroute " + pathname, {
     setTimeout: 5 * 60 * 1000
@@ -70,17 +60,16 @@ function trace(_date, _index, _url, callback) {
       var ip = getIP(o);
       if (ip !== undefined) {
         _route.push(ip);
-        //getLocation(ip);
       }
     });
     getLocationAll(_route, function (err, locations) {
       info = {
         "index": _index,
         "date": _date,
+        "time": _time,
         "locs": locations
       };
       universities.push(info);
-      //writeFile(info);
       callback(null, info);
     });
 
@@ -98,9 +87,9 @@ function getIP(str) {
   }
 }
 
-function traceAll(urls, _date, callback) {
+function traceAll(urls, _date, _time, callback) {
   urls.forEach(function (_url, _index) {
-    trace(_date, _index, _url, callback);
+    trace(_date, _time, _index, _url, callback);
   });
 }
 
@@ -166,19 +155,15 @@ function writeFile(json) {
   fs.writeSync("data.txt", buffer, 0, buffer.length);
 }
 
-traceAll(urls, new Date(), function (err, info) {
+/*
+for test: call it once
+*/
+traceAll(urls, new Date(), new Date().getHours(), function (err, info) {
   if (err) {
     return console.error(err.stack);
   }
   console.log(info);
 });
-
-// trace(new Date(), 0, "www.cmu.edu", function (err, info) {
-//   if (err) {
-//     return console.error(err.stack);
-//   }
-//   console.log(info);
-// });
 
 /*
 schedule it for requesting every hour
