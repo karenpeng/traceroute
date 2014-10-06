@@ -34,7 +34,7 @@ var urlencodedParser = bodyParser.urlencoded({
 app.get('/', function (req, res) {
   //res.render('index');
   res.json({
-    info: routes
+    "universities": universities
   });
 
   // routes.forEach(function (route) {
@@ -46,22 +46,19 @@ app.get('/', function (req, res) {
 
 var urls = [
   "www.cmu.edu",
-  "www.ucla.edu",
-  "www.nyu.edu",
-  "www.harvard.edu"
+  "www.mit.edu",
+  "www.google.com"
 ];
 var urlsCounter = 0;
 
-var routes = [];
+var universities = [];
 
 // perform a traceroute:
 function trace(_date, _index, _url, callback) {
-
-  var _route = [];
-  var info;
   var pathname = _url;
-  var starCount = 0;
-
+  var _route = [];
+  //var _locs = [];
+  var info;
   cp.exec("traceroute " + pathname, {
     setTimeout: 5 * 60 * 1000
   }, function (err, stdout, stderr) {
@@ -73,18 +70,20 @@ function trace(_date, _index, _url, callback) {
       var ip = getIP(o);
       if (ip !== undefined) {
         _route.push(ip);
-        getLocation(ip);
+        //getLocation(ip);
       }
     });
+    getLocationAll(_route, function (err, locations) {
+      info = {
+        "index": _index,
+        "date": _date,
+        "locs": locations
+      };
+      universities.push(info);
+      //writeFile(info);
+      callback(null, info);
+    });
 
-    info = {
-      index: _index,
-      date: _date,
-      route: _route
-    };
-    routes.push(info);
-    //writeFile(info);
-    callback(null, info);
   });
 
 }
@@ -99,64 +98,61 @@ function getIP(str) {
   }
 }
 
-function traceAll(_date, callback) {
-  urls.forEach(function (_url, _index, callback) {
+function traceAll(urls, _date, callback) {
+  urls.forEach(function (_url, _index) {
     trace(_date, _index, _url, callback);
   });
 }
 
-function getLocation(ip) {
-  urllib.request('http://ipinfo.io/' + ip, {
+function getLocation(ip, callback) {
+  urllib.request('http://ipinfo.io/' + ip + "/json", {
     method: 'GET',
-    dataType: 'jsonp'
+    dataType: 'json'
   }, function (err, data, res) {
     if (err) {
       return console.error(err.stack);
     }
-    console.log(res);
-    //console.log(res.loc);
-    //console.log(data);
-    //var str = res.loc;
-    // var result = str.split(",");
-    // var lat = parseFloat(result[0]);
-    // var lng = parseFloat(result[1]);
-    // console.log(lat, lng);
-    //locs.push([lat,lng]);
-    //callback(err)
+    var str = data.loc;
+    var result = str.split(",");
+    var lat = parseFloat(result[0]);
+    var lng = parseFloat(result[1]);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      var location = [lat, lng];
+      callback(err, location);
+    } else {
+      callback(err, null);
+    }
   });
 }
 
 function getLocationAll(ips, callback) {
-  var ip = ips.unshift();
-  var res = [];
-  _get();
+  var i = 0;
+  var locations = [];
+  _get(ips[i]);
 
   // get location one by one
   function _get(ip) {
     // if no left ip
     // callback with the res
     if (!ip) {
-      return callback(null, res);
+      return callback(null, locations);
     }
-
     // get location with ip
     getLocation(ip, function (err, location) {
       if (err) {
         console.error(err.stack);
       }
-
       if (location) {
-        res.push({
-          ip: ip,
-          location: location
-        });
+        locations.push(location);
       }
-
+      if (locations.length === ips.length) {
+        callback(err, locations);
+      }
       // try to get next one
-      _get(ips.unshift());
+      i++;
+      _get(ips[i]);
     });
   }
-
 }
 
 var file;
@@ -170,19 +166,19 @@ function writeFile(json) {
   fs.writeSync("data.txt", buffer, 0, buffer.length);
 }
 
-//traceAll(new Date(),function (err, info) {
-//   if (err) {
-//     return console.error(err.stack);
-//   }
-//   console.log(info);
-// });
-
-trace(new Date(), 0, "www.cmu.edu", function (err, info) {
+traceAll(urls, new Date(), function (err, info) {
   if (err) {
     return console.error(err.stack);
   }
   console.log(info);
 });
+
+// trace(new Date(), 0, "www.cmu.edu", function (err, info) {
+//   if (err) {
+//     return console.error(err.stack);
+//   }
+//   console.log(info);
+// });
 
 /*
 schedule it for requesting every hour
