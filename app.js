@@ -38,16 +38,215 @@ app.get('/', function (req, res) {
 });
 
 var urls = [
-  "www.cmu.edu",
-  "www.mit.edu",
-  "www.google.com"
+  "www.harvard.edu",
+
+  "web.mit.edu",
+
+  "www.stanford.edu",
+
+  "www.cam.ac.uk",
+
+  "www.ox.ac.uk",
+
+  "berkeley.edu",
+
+  "www.princeton.edu",
+
+  "www.yale.edu",
+
+  "www.caltech.edu",
+
+  "www.ucla.edu",
+
+  "www.u-tokyo.ac.jp",
+
+  "www.columbia.edu",
+
+  "www3.imperial.ac.uk",
+
+  "www.uchicago.edu",
+
+  "www.umich.edu",
+
+  "www.ethz.ch",
+
+  "www.cornell.edu",
+
+  "www.jhu.edu",
+
+  "www.kyoto-u.ac.jp",
+
+  "www.utoronto.ca",
+
+  "www.nus.edu.sg",
+
+  "www.upenn.edu",
+
+  "illinois.edu",
+
+  "www.lse.ac.uk",
+
+  "www.ucl.ac.uk",
+
+  "www.useoul.edu",
+
+  "www.nyu.edu",
+
+  "www.wisc.edu",
+
+  "www.cmu.edu/index.shtml",
+
+  "duke.edu",
+
+  "www.washington.edu",
+
+  "www.ucsf.edu",
+
+  "www.ubc.ca",
+
+  "www.mcgill.ca",
+
+  "www.utexas.edu",
+
+  "www.tsinghua.edu.cn",
+
+  "www.northwestern.edu",
+
+  "www.gatech.edu",
+
+  "www.psu.edu",
+
+  "ucsd.edu",
+
+  "english.pku.edu.cn",
+
+  "www.tudelft.nl",
+
+  "www.hku.hk",
+
+  "www.kcl.ac.uk",
+
+  "www.unimelb.edu.au",
+
+  "www.ed.ac.uk",
+
+  "www.en.uni-muenchen.de",
+
+  "www.purdue.edu",
+
+  "www.epfl.ch",
+
+  "www.osaka-u.ac.jp",
+
+  "www.ucdavis.edu",
+
+  "www.ust.hk",
+
+  "ki.se/start",
+
+  "www.kaist.edu",
+
+  "www.manchester.ac.uk",
+
+  "www1.umn.edu",
+
+  "www.msu.ru",
+
+  "www.osu.edu",
+
+  "www.ntu.edu.tw",
+
+  "www.titech.ac.jp",
+
+  "www.anu.edu.au",
+
+  "www.ucsb.edu",
+
+  "www.umass.edu",
+
+  "www.msu.edu",
+
+  "unc.edu",
+
+  "www.uni-heidelberg.de",
+
+  "www.usc.edu",
+
+  "sydney.edu.au",
+
+  "www.tum.de",
+
+  "www.tohoku.ac.jp",
+
+  "www.uva.nl",
+
+  "www.bu.edu",
+
+  "www.hu-berlin.de",
+
+  "www.indiana.edu",
+
+  "www.kuleuven.be",
+
+  "www.metu.edu.tr",
+
+  "www.paris-sorbonne.fr",
+
+  "www.pitt.edu",
+
+  "www.tamu.edu",
+
+  "wustl.edu",
+
+  "www.brown.edu",
+
+  "www.cuhk.edu.hk",
+
+  "www.fu-berlin.de",
+
+  "www.leidenuniv.nl",
+
+  "www.umd.edu",
+
+  "www.mayo.edu",
+
+  "www.uq.edu.au",
+
+  "www5.usp.br",
+
+  "www.uu.nl/en",
+
+  "www.yonsei.ac.kr/eng",
+
+  "www.arizona.edu",
+
+  "www.ufl.edu",
+
+  "www.london.edu",
+
+  "www.lshtm.ac.uk",
+
+  "www.ntu.edu.sg",
+
+  "www.unsw.edu.au",
+
+  "www.upmc.fr/en",
+
+  "www.rutgers.edu",
+
+  "www.rwth-aachen.de",
+
+  "www.technion.ac.il/en",
 ];
+
+urls = ["www.cmu.edu"];
 
 var universities = [];
 
 function trace(_date, _time, _index, _url, callback) {
   var pathname = _url;
   var _route = [];
+  var _times = [];
   var info;
   cp.exec("traceroute " + pathname, {
     setTimeout: 5 * 60 * 1000
@@ -61,20 +260,50 @@ function trace(_date, _time, _index, _url, callback) {
       if (ip !== undefined) {
         _route.push(ip);
       }
+      var time = getTimePeriod(o);
+      if (time !== undefined) {
+        _times.push(time);
+      }
     });
     getLocationAll(_route, function (err, locations) {
       info = {
         "index": _index,
         "date": _date,
         "time": _time,
-        "locs": locations
+        "locs": locations,
+        "speed": _times
       };
       universities.push(info);
+      //write in a file here
+      console.log(info);
+      writeFile(info);
       callback(null, info);
     });
 
   });
 
+}
+
+function getTimePeriod(str1) {
+  var times = [];
+  var timePattern = /\s\d+\.\d+\sms/g;
+  var timesWithMs = str1.match(timePattern);
+  if (timesWithMs !== null) {
+    timesWithMs.forEach(function (str2) {
+      var timePattern2 = /\d+\.\d+/g;
+      var t = str2.match(timePattern2);
+      if (t !== null) {
+        times.push(t[0]);
+      }
+    });
+    var sum = 0;
+    var avg = 0;
+    times.forEach(function (tt) {
+      sum += parseFloat(tt);
+    });
+    avg = sum / times.length;
+    return avg;
+  }
 }
 
 function getIP(str) {
@@ -152,7 +381,21 @@ function writeFile(json) {
   // }
   var string = JSON.stringify(json);
   var buffer = new Buffer(string, "utf8");
-  fs.writeSync("data.txt", buffer, 0, buffer.length);
+  console.log(buffer.toString());
+  // fs.writeSync("data", buffer, 0, buffer.length, function () {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     console.log("The file was saved!");
+  //   }
+  // });
+  fs.writeSync("data", string, "utf8", function () {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("The file was saved!");
+    }
+  });
 }
 
 /*
@@ -164,6 +407,13 @@ traceAll(urls, new Date(), new Date().getHours(), function (err, info) {
   }
   console.log(info);
 });
+
+// trace(new Date(), new Date().getHours(), 0, "www.cmu.edu", function (err, info) {
+//   if (err) {
+//     return console.error(err.stack);
+//   }
+//   console.log(info);
+// });
 
 /*
 schedule it for requesting every hour
