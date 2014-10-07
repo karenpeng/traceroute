@@ -1,245 +1,16 @@
-var express = require('express');
-var app = express();
-var server = app.listen(5000, function () {
-  console.log('Listening on port %d', server.address().port);
-});
-
-var ejs = require('ejs');
-var bodyParser = require('body-parser');
 var cp = require('child_process'); // include exec module
 var later = require('later');
 var fs = require("fs");
 var urllib = require('urllib');
 
-// Set up the view directory
-app.set("views", __dirname);
-
-// Set EJS as templating language WITH html as an extension)
-app.engine('.html', ejs.__express);
-app.set('view engine', 'html');
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-
-// create application/json parser
-var jsonParser = bodyParser.json();
+// var jsonParser = bodyParser.json();
 
 // create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({
-  extended: false
-});
-
-app.get('/', function (req, res) {
-  res.json({
-    "universities": universities
-  });
-});
+// var urlencodedParser = bodyParser.urlencoded({
+//   extended: false
+// });
 
 var urls = [
-  "www.harvard.edu",
-
-  "web.mit.edu",
-
-  "www.stanford.edu",
-
-  "www.cam.ac.uk",
-
-  "www.ox.ac.uk",
-
-  "berkeley.edu",
-
-  "www.princeton.edu",
-
-  "www.yale.edu",
-
-  "www.caltech.edu",
-
-  "www.ucla.edu",
-
-  "www.u-tokyo.ac.jp",
-
-  "www.columbia.edu",
-
-  "www3.imperial.ac.uk",
-
-  "www.uchicago.edu",
-
-  "www.umich.edu",
-
-  "www.ethz.ch",
-
-  "www.cornell.edu",
-
-  "www.jhu.edu",
-
-  "www.kyoto-u.ac.jp",
-
-  "www.utoronto.ca",
-
-  "www.nus.edu.sg",
-
-  "www.upenn.edu",
-
-  "illinois.edu",
-
-  "www.lse.ac.uk",
-
-  "www.ucl.ac.uk",
-
-  "www.useoul.edu",
-
-  "www.nyu.edu",
-
-  "www.wisc.edu",
-
-  "www.cmu.edu/index.shtml",
-
-  "duke.edu",
-
-  "www.washington.edu",
-
-  "www.ucsf.edu",
-
-  "www.ubc.ca",
-
-  "www.mcgill.ca",
-
-  "www.utexas.edu",
-
-  "www.tsinghua.edu.cn",
-
-  "www.northwestern.edu",
-
-  "www.gatech.edu",
-
-  "www.psu.edu",
-
-  "ucsd.edu",
-
-  "english.pku.edu.cn",
-
-  "www.tudelft.nl",
-
-  "www.hku.hk",
-
-  "www.kcl.ac.uk",
-
-  "www.unimelb.edu.au",
-
-  "www.ed.ac.uk",
-
-  "www.en.uni-muenchen.de",
-
-  "www.purdue.edu",
-
-  "www.epfl.ch",
-
-  "www.osaka-u.ac.jp",
-
-  "www.ucdavis.edu",
-
-  "www.ust.hk",
-
-  "ki.se/start",
-
-  "www.kaist.edu",
-
-  "www.manchester.ac.uk",
-
-  "www1.umn.edu",
-
-  "www.msu.ru",
-
-  "www.osu.edu",
-
-  "www.ntu.edu.tw",
-
-  "www.titech.ac.jp",
-
-  "www.anu.edu.au",
-
-  "www.ucsb.edu",
-
-  "www.umass.edu",
-
-  "www.msu.edu",
-
-  "unc.edu",
-
-  "www.uni-heidelberg.de",
-
-  "www.usc.edu",
-
-  "sydney.edu.au",
-
-  "www.tum.de",
-
-  "www.tohoku.ac.jp",
-
-  "www.uva.nl",
-
-  "www.bu.edu",
-
-  "www.hu-berlin.de",
-
-  "www.indiana.edu",
-
-  "www.kuleuven.be",
-
-  "www.metu.edu.tr",
-
-  "www.paris-sorbonne.fr",
-
-  "www.pitt.edu",
-
-  "www.tamu.edu",
-
-  "wustl.edu",
-
-  "www.brown.edu",
-
-  "www.cuhk.edu.hk",
-
-  "www.fu-berlin.de",
-
-  "www.leidenuniv.nl",
-
-  "www.umd.edu",
-
-  "www.mayo.edu",
-
-  "www.uq.edu.au",
-
-  "www5.usp.br",
-
-  "www.uu.nl/en",
-
-  "www.yonsei.ac.kr/eng",
-
-  "www.arizona.edu",
-
-  "www.ufl.edu",
-
-  "www.london.edu",
-
-  "www.lshtm.ac.uk",
-
-  "www.ntu.edu.sg",
-
-  "www.unsw.edu.au",
-
-  "www.upmc.fr/en",
-
-  "www.rutgers.edu",
-
-  "www.rwth-aachen.de",
-
-  "www.technion.ac.il/en"
-];
-
-urls = [
   "www.cmu.edu",
   "www.google.com"
 ];
@@ -255,7 +26,8 @@ function trace(_date, _time, _index, _url, callback) {
     setTimeout: 5 * 60 * 1000
   }, function (err, stdout, stderr) {
     if (err) {
-      return callback(err);
+      console.log(err);
+      callback(err);
     }
     var out = stdout.split('\n');
     out.forEach(function (o) {
@@ -381,29 +153,20 @@ function getLocationAll(ips, callback) {
 
 var file;
 
-function writeFile(json) {
+function writeFile(data) {
   // if (file === null) {
   //   file = fs.openSync('data.txt', "ax", "0444");
   // }
-  var string = JSON.stringify(json);
-  var buffer = new Buffer(string, "utf8");
-  //console.log(buffer.toString());
-  // fs.writeSync("data", buffer, 0, buffer.length, null, function () {
+  var index = data.index;
+  var string = JSON.stringify(data);
+  // fs.writeSync("data", buffer, 0, buffer.length, function () {
   //   if (err) {
   //     console.log(err);
   //   } else {
   //     console.log("The file was saved!");
   //   }
   // });
-  fs.writeSync("data", string, {
-    encoding: "utf8"
-  }, function () {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("The file was saved!");
-    }
-  });
+  fs.writeFileSync("data" + index, string);
 }
 
 /*
