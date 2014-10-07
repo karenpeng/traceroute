@@ -240,9 +240,8 @@ var urls = [
 ];
 
 urls = [
-  "www.harvard.edu",
-
-  "web.mit.edu"
+  "www.cmu.edu",
+  "www.google.com"
 ];
 
 var universities = [];
@@ -269,6 +268,8 @@ function trace(_date, _time, _index, _url, callback) {
         _times.push(time);
       }
     });
+    // console.log(_route);
+    // console.log(_times);
     getLocationAll(_route, function (err, locations) {
       info = {
         "index": _index,
@@ -283,7 +284,6 @@ function trace(_date, _time, _index, _url, callback) {
       //writeFile(info);
       callback(null, info);
     });
-
   });
 
 }
@@ -370,6 +370,7 @@ function getLocationAll(ips, callback) {
       }
       if (locations.length === ips.length) {
         callback(err, locations);
+        return;
       }
       // try to get next one
       i++;
