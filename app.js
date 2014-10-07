@@ -94,7 +94,7 @@ var urls = [
 
   "www.wisc.edu",
 
-  "www.cmu.edu/index.shtml",
+  "www.cmu.edu",
 
   "duke.edu",
 
@@ -142,7 +142,7 @@ var urls = [
 
   "www.ust.hk",
 
-  "ki.se/start",
+  "ki.se",
 
   "www.kaist.edu",
 
@@ -192,51 +192,7 @@ var urls = [
 
   "www.paris-sorbonne.fr",
 
-  "www.pitt.edu",
-
-  "www.tamu.edu",
-
-  "wustl.edu",
-
-  "www.brown.edu",
-
-  "www.cuhk.edu.hk",
-
-  "www.fu-berlin.de",
-
-  "www.leidenuniv.nl",
-
-  "www.umd.edu",
-
-  "www.mayo.edu",
-
-  "www.uq.edu.au",
-
-  "www5.usp.br",
-
-  "www.uu.nl/en",
-
-  "www.yonsei.ac.kr/eng",
-
-  "www.arizona.edu",
-
-  "www.ufl.edu",
-
-  "www.london.edu",
-
-  "www.lshtm.ac.uk",
-
-  "www.ntu.edu.sg",
-
-  "www.unsw.edu.au",
-
-  "www.upmc.fr/en",
-
-  "www.rutgers.edu",
-
-  "www.rwth-aachen.de",
-
-  "www.technion.ac.il/en"
+  "www.pitt.edu"
 ];
 
 urls = [
@@ -281,7 +237,7 @@ function trace(_date, _time, _index, _url, callback) {
       universities.push(info);
       //write in a file here
       console.log(info);
-      writeFile(info);
+      //writeFile(info);
       callback(null, info);
     });
   });
