@@ -236,10 +236,14 @@ var urls = [
 
   "www.rwth-aachen.de",
 
-  "www.technion.ac.il/en",
+  "www.technion.ac.il/en"
 ];
 
-urls = ["www.cmu.edu"];
+urls = [
+  "www.harvard.edu",
+
+  "web.mit.edu"
+];
 
 var universities = [];
 
@@ -276,7 +280,7 @@ function trace(_date, _time, _index, _url, callback) {
       universities.push(info);
       //write in a file here
       console.log(info);
-      writeFile(info);
+      //writeFile(info);
       callback(null, info);
     });
 
@@ -319,6 +323,7 @@ function getIP(str) {
 function traceAll(urls, _date, _time, callback) {
   urls.forEach(function (_url, _index) {
     trace(_date, _time, _index, _url, callback);
+    //console.log(_index);
   });
 }
 
@@ -389,13 +394,13 @@ function writeFile(json) {
   //     console.log("The file was saved!");
   //   }
   // });
-  fs.writeSync("data", string, "utf8", function () {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("The file was saved!");
-    }
-  });
+  // fs.writeSync("data", string, "utf8", function () {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     console.log("The file was saved!");
+  //   }
+  // });
 }
 
 /*
@@ -405,7 +410,7 @@ traceAll(urls, new Date(), new Date().getHours(), function (err, info) {
   if (err) {
     return console.error(err.stack);
   }
-  console.log(info);
+  //console.log(info);
 });
 
 // trace(new Date(), new Date().getHours(), 0, "www.cmu.edu", function (err, info) {
