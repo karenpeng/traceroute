@@ -281,7 +281,7 @@ function trace(_date, _time, _index, _url, callback) {
       universities.push(info);
       //write in a file here
       console.log(info);
-      //writeFile(info);
+      writeFile(info);
       callback(null, info);
     });
   });
@@ -387,21 +387,23 @@ function writeFile(json) {
   // }
   var string = JSON.stringify(json);
   var buffer = new Buffer(string, "utf8");
-  console.log(buffer.toString());
-  // fs.writeSync("data", buffer, 0, buffer.length, function () {
+  //console.log(buffer.toString());
+  // fs.writeSync("data", buffer, 0, buffer.length, null, function () {
   //   if (err) {
   //     console.log(err);
   //   } else {
   //     console.log("The file was saved!");
   //   }
   // });
-  // fs.writeSync("data", string, "utf8", function () {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     console.log("The file was saved!");
-  //   }
-  // });
+  fs.writeSync("data", string, {
+    encoding: "utf8"
+  }, function () {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("The file was saved!");
+    }
+  });
 }
 
 /*
