@@ -197,7 +197,24 @@ var urls = [
 
 urls = [
   "www.cmu.edu",
-  "www.google.com"
+
+  "www.google.com",
+
+  "www.stanford.edu",
+
+  "www.cam.ac.uk",
+
+  "www.ox.ac.uk",
+
+  "berkeley.edu",
+
+  "www.princeton.edu",
+
+  "www.yale.edu",
+
+  "www.caltech.edu",
+
+  "www.ucla.edu"
 ];
 
 var universities = [];
@@ -211,7 +228,8 @@ function trace(_date, _time, _index, _url, callback) {
     setTimeout: 5 * 60 * 1000
   }, function (err, stdout, stderr) {
     if (err) {
-      return callback(err);
+      console.log(err);
+      callback(err);
     }
     var out = stdout.split('\n');
     out.forEach(function (o) {
@@ -237,7 +255,7 @@ function trace(_date, _time, _index, _url, callback) {
       universities.push(info);
       //write in a file here
       console.log(info);
-      //writeFile(info);
+      writeFile(info);
       callback(null, info);
     });
   });
@@ -335,31 +353,20 @@ function getLocationAll(ips, callback) {
   }
 }
 
-var file;
-
-function writeFile(json) {
+function writeFile(data) {
   // if (file === null) {
   //   file = fs.openSync('data.txt', "ax", "0444");
   // }
-  var string = JSON.stringify(json);
-  var buffer = new Buffer(string, "utf8");
-  //console.log(buffer.toString());
-  // fs.writeSync("data", buffer, 0, buffer.length, null, function () {
+  var index = data.index;
+  var string = JSON.stringify(data);
+  // fs.writeSync("data", buffer, 0, buffer.length, function () {
   //   if (err) {
   //     console.log(err);
   //   } else {
   //     console.log("The file was saved!");
   //   }
   // });
-  fs.writeSync("data", string, {
-    encoding: "utf8"
-  }, function () {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("The file was saved!");
-    }
-  });
+  fs.writeFileSync("data" + index + ".txt", string);
 }
 
 /*
@@ -382,7 +389,12 @@ traceAll(urls, new Date(), new Date().getHours(), function (err, info) {
 /*
 schedule it for requesting every hour
 */
-//var sched = later.parse.recur().first().minute();
+var sched = later.parse.recur().first().minute();
 // var t = later.setInterval(function () {
-//   traceAll(new Date());
+//   traceAll(urls, new Date(), new Date().getHours(), function (err, info) {
+//     if (err) {
+//       return console.error(err.stack);
+//     }
+//     //console.log(info);
+//   });
 // }, sched);
