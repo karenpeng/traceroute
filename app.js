@@ -366,7 +366,14 @@ function writeFile(data) {
   //     console.log("The file was saved!");
   //   }
   // });
-  fs.writeFileSync("data" + index + ".txt", string);
+  fs.appendFile("data" + index + ".txt", string, {
+    encodeing: 'utf8'
+  }, function (err) {
+    if (err) {
+      return console.error(err.stack);
+    }
+    console.log('The data of #' + index + ' university was appended to file!');
+  });
 }
 
 /*
