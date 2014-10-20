@@ -379,7 +379,7 @@ function writeFile(data) {
   //     console.log("The file was saved!");
   //   }
   // });
-  fs.appendFile("data" + index + ".txt", string, {
+  fs.appendFile("data/data" + index + ".txt", string, {
     encodeing: 'utf8'
   }, function (err) {
     if (err) {
