@@ -45,7 +45,7 @@ app.get('/', function (req, res) {
   // res.json({
   //   "universities": universities
   // });
-  res.send({
+  res.end({
     "universities": universities
   });
 });
