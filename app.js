@@ -18,6 +18,15 @@ app.set("views", __dirname);
 app.engine('.html', ejs.__express);
 app.set('view engine', 'html');
 
+// express on its own has no notion
+// of a "file". The express.static()
+// middleware checks for a file matching
+// the `req.path` within the directory
+// that you pass it. In this case "GET /js/app.js"
+// will look for "./public/js/app.js".
+
+app.use(express.static(__dirname + '/public'));
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
   extended: false
@@ -32,7 +41,11 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 app.get('/', function (req, res) {
-  res.json({
+  res.render('index.html');
+  // res.json({
+  //   "universities": universities
+  // });
+  res.send({
     "universities": universities
   });
 });
